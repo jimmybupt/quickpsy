@@ -5,7 +5,7 @@
 #' @keywords internal
 #' @export
 one_parcomparisons <- function(d, para, groups, ci) {
-  condlevels <- d tidyr::%>% filter(sample==1)
+  condlevels <- d %>% filter(sample==1)
   if (length(groups) != 0) para <- semi_join(para, condlevels, by ='parn')
   condlevels <- condlevels %>% select(match(groups,names(condlevels)))
 
@@ -17,7 +17,7 @@ one_parcomparisons <- function(d, para, groups, ci) {
     names(cond2) <- paste0(names(cond2), '2')
     cbind(cond1, cond2)
   }
-  pairnames <- combinations tidyr::%>% group_by(V1, V2) %>%
+  pairnames <- combinations %>% group_by(V1, V2) %>%
     do(putnames(.))
 
   one_difcom <- function(f) {
@@ -26,8 +26,8 @@ one_parcomparisons <- function(d, para, groups, ci) {
     cond2 <- semi_join(para, condlevels[f$V2,], by=groups)
     data.frame(dif= cond1$par -cond2$par)
   }
-  dif <- pairnames tidyr::%>% group_by_(.dots = names(pairnames)) tidyr::%>%
-    do(one_difcom(.)) tidyr::%>% ungroup() %>% select(-V1, -V2)
+  dif <- pairnames %>% group_by_(.dots = names(pairnames)) %>%
+    do(one_difcom(.)) %>% ungroup() %>% select(-V1, -V2)
 
 
   one_bootcom <- function(f) {
@@ -35,12 +35,12 @@ one_parcomparisons <- function(d, para, groups, ci) {
     cond2 <- semi_join(d, condlevels[f$V2,], by=groups)
 
     data.frame(par1 = cond1$par, par2= cond2$par, diffe= cond1$par -cond2$par)
-    tidyr::%>% summarise(difinf = quantile(diffe, .5*(1 - ci))[[1]],
+    %>% summarise(difinf = quantile(diffe, .5*(1 - ci))[[1]],
                 difsup = quantile(diffe, 1 - .5*(1 - ci))[[1]],
                 signif = ifelse(difinf * difsup < 0,' ','*'))
   }
-  ci <- pairnames tidyr::%>% group_by_(.dots = names(pairnames))%>%
-    do(one_bootcom(.)) tidyr::%>% ungroup() tidyr::%>% select(-V1, -V2)
+  ci <- pairnames %>% group_by_(.dots = names(pairnames))%>%
+    do(one_bootcom(.)) %>% ungroup() %>% select(-V1, -V2)
 
   merge(dif,ci)
 }
