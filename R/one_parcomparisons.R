@@ -34,8 +34,8 @@ one_parcomparisons <- function(d, para, groups, ci) {
     cond1 <- semi_join(d, condlevels[f$V1,], by=groups)
     cond2 <- semi_join(d, condlevels[f$V2,], by=groups)
 
-    data.frame(par1 = cond1$par, par2= cond2$par, diffe= cond1$par -cond2$par)
-    %>% summarise(difinf = quantile(diffe, .5*(1 - ci))[[1]],
+    data.frame(par1 = cond1$par, par2= cond2$par, diffe= cond1$par -cond2$par) %>% 
+                summarise(difinf = quantile(diffe, .5*(1 - ci))[[1]],
                 difsup = quantile(diffe, 1 - .5*(1 - ci))[[1]],
                 signif = ifelse(difinf * difsup < 0,' ','*'))
   }
